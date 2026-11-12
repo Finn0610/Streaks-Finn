@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StreakFire Journal — IELTS 7.0 & Daily Habit Tracker</title>
+  <!-- Google Font: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Canvas Confetti for Instant Dopamine -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            flame: {
+              400: '#ff8a3d',
+              500: '#ff5400',
+              600: '#e03e00',
+              700: '#b82800'
+            }
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'dice-shake': 'diceShake 0.45s ease-in-out',
+          },
+          keyframes: {
+            diceShake: {
+              '0%, 100%': { transform: 'rotate(0deg) scale(1)' },
+              '20%': { transform: 'rotate(-18deg) scale(1.15)' },
+              '40%': { transform: 'rotate(18deg) scale(1.15)' },
+              '60%': { transform: 'rotate(-12deg) scale(1.1)' },
+              '80%': { transform: 'rotate(12deg) scale(1.1)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #ff5400;
+      border-radius: 6px;
+    }
+
+    /* Ambient Glow Effects */
+    .glow-fire {
+      box-shadow: 0 0 28px rgba(255, 84, 0, 0.35);
+    }
+    .glass-card {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+  </style>
+</head>
+<body class="bg-stone-100 text-stone-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-200 overflow-x-hidden">
+
+  <!-- TOP LOSS AVERSION BANNER -->
+  <div id="loss-aversion-banner" class="bg-gradient-to-r from-red-600 via-flame-600 to-amber-600 text-white px-4 py-2.5 text-xs sm:text-sm font-semibold shadow-lg sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center justify-center animate-bounce">
+          <i data-lucide="flame" class="w-5 h-5 text-amber-200 fill-amber-300"></i>
+        </span>
+        <span id="streak-warning-text">Cảnh báo Nỗi Sợ Mất Mát: Nếu bạn không check-in hôm nay, chuỗi ngày nỗ lực sẽ biến mất và trở về số 0!</span>
+      </div>
+      <div class="flex items-center gap-2 ml-auto">
+        <button id="quick-checkin-btn" onclick="quickTodayCheckin()" class="bg-white text-flame-700 hover:bg-amber-50 px-3.5 py-1.5 rounded-full text-xs font-extrabold tracking-wide transition shadow-sm cursor-pointer">
+          Ghi nhận hôm nay ⚡
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN HEADER & DATA SYNC TOOLBAR -->
+  <header class="border-b border-stone-200/80 dark:border-slate-800/80 bg-white/85 dark:bg-slate-900/85 glass-card sticky top-[42px] sm:top-[44px] z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-col xl:flex-row xl:items-center justify-between gap-3.5">
+      
+      <!-- Brand & Target Title -->
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-flame-500 via-red-600 to-amber-500 flex items-center justify-center text-white shadow-lg glow-fire shrink-0">
+            <i data-lucide="zap" class="w-6 h-6 fill-white"></i>
+          </div>
+          <div>
+            <h1 class="font-black text-base sm:text-lg tracking-tight text-stone-900 dark:text-white flex flex-wrap items-center gap-2">
+              StreakFire Journal
+              <span class="text-[11px] px-2 py-0.5 rounded-lg bg-flame-500/15 text-flame-600 dark:text-flame-400 font-bold border border-flame-500/30">
+                IELTS 7.0 & Daily Habit
+              </span>
+            </h1>
+            <p class="text-xs text-stone-500 dark:text-slate-400">
+              Mục tiêu: <strong class="text-stone-700 dark:text-slate-200">15/03/2027</strong> • Giữ chuỗi & Kỷ luật không thỏa hiệp
+            </p>
+          </div>
+        </div>
+
+        <!-- Mobile Theme Toggle -->
+        <button onclick="toggleDarkMode()" aria-label="Đổi giao diện sáng/tối" class="xl:hidden p-2.5 rounded-xl border border-stone-200 dark:border-slate-800 hover:bg-stone-100 dark:hover:bg-slate-800 transition text-stone-600 dark:text-slate-300">
+          <i id="theme-icon-mobile" data-lucide="sun" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Metrics & Backup/Cloud Sync Toolbar -->
+      <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
+        
+        <!-- Live Streak Counter Badge -->
+        <div class="flex items-center gap-2.5 bg-gradient-to-r from-orange-500/10 to-red-500/10 dark:from-flame-500/15 dark:to-red-500/15 border border-flame-500/30 px-3.5 py-1.5 rounded-2xl">
+          <i data-lucide="flame" class="w-6 h-6 text-flame-500 fill-flame-500 animate-pulse-slow shrink-0"></i>
+          <div>
+            <div class="text-[10px] uppercase font-bold tracking-wider text-stone-500 dark:text-slate-400 leading-none">Chuỗi Hiện Tại</div>
+            <div class="text-base sm:text-lg font-black text-flame-600 dark:text-flame-400 leading-tight">
+              <span id="header-streak-count">0</span> <span class="text-xs font-semibold text-stone-600 dark:text-slate-300">ngày</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Countdown Widget to March 15, 2027 -->
+        <div class="flex items-center gap-2 bg-stone-100 dark:bg-slate-800/80 border border-stone-200 dark:border-slate-700/80 px-3.5 py-1.5 rounded-2xl">
+          <i data-lucide="target" class="w-5 h-5 text-emerald-500 shrink-0"></i>
+          <div>
+            <div class="text-[10px] uppercase font-bold tracking-wider text-stone-500 dark:text-slate-400 leading-none">Thi IELTS (15/03/2027)</div>
+            <div class="text-xs sm:text-sm font-extrabold text-stone-800 dark:text-slate-100 leading-tight" id="countdown-text">Đang tính...</div>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="hidden sm:block h-7 w-px bg-stone-200 dark:bg-slate-800 mx-0.5"></div>
+
+        <!-- Toolbar: Export JSON -->
+        <button onclick="exportBackupJSON()" class="px-3 py-2 rounded-xl text-xs font-bold bg-stone-100 hover:bg-stone-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-stone-700 dark:text-slate-200 border border-stone-200 dark:border-slate-700 flex items-center gap-1.5 transition cursor-pointer" title="Tải toàn bộ dữ liệu về máy dưới dạng file .json">
+          <i data-lucide="download" class="w-4 h-4 text-sky-500"></i>
+          <span>Xuất Backup (.json)</span>
+        </button>
+
+        <!-- Toolbar: Import JSON -->
+        <button onclick="triggerImportJSON()" class="px-3 py-2 rounded-xl text-xs font-bold bg-stone-100 hover:bg-stone-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-stone-700 dark:text-slate-200 border border-stone-200 dark:border-slate-700 flex items-center gap-1.5 transition cursor-pointer" title="Khôi phục dữ liệu từ file .json đã lưu">
+          <i data-lucide="upload" class="w-4 h-4 text-amber-500"></i>
+          <span>Nhập Backup (.json)</span>
+        </button>
+        <input type="file" id="import-json-input" accept=".json,application/json" class="hidden" onchange="handleImportJSON(event)">
+
+        <!-- Toolbar: Connect Google Sheets + Live Status Badge -->
+        <button onclick="openSheetsSyncModal()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600/15 hover:bg-emerald-600/25 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 flex items-center gap-2 transition cursor-pointer shadow-xs">
+          <i data-lucide="sheet" class="w-4 h-4 text-emerald-500"></i>
+          <span>Kết nối Google Sheets</span>
+          <span id="cloud-status-badge" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-stone-200 dark:bg-slate-800 text-stone-600 dark:text-slate-300">
+            <span id="cloud-status-dot" class="w-2 h-2 rounded-full bg-stone-400"></span>
+            <span id="cloud-status-text">Chưa kết nối</span>
+          </span>
+        </button>
+
+        <!-- Desktop Theme Toggle -->
+        <button onclick="toggleDarkMode()" aria-label="Đổi giao diện sáng/tối" class="hidden xl:flex p-2.5 rounded-xl border border-stone-200 dark:border-slate-800 hover:bg-stone-100 dark:hover:bg-slate-800 transition text-stone-600 dark:text-slate-300 cursor-pointer">
+          <i id="theme-icon" data-lucide="sun" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full space-y-6">
+
+    <!-- 2. MONTHLY SHEETS NAVIGATION (12-MONTH TABS + YEAR SELECTOR) -->
+    <section class="bg-white/90 dark:bg-slate-900/90 glass-card rounded-2xl border border-stone-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-stone-100 dark:border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <span class="p-2 rounded-xl bg-flame-500/15 text-flame-500">
+            <i data-lucide="layers" class="w-5 h-5"></i>
+          </span>
+          <div>
+            <h2 class="text-sm sm:text-base font-extrabold text-stone-900 dark:text-white">Bảng Sheet 12 Tháng (Monthly Sheets)</h2>
+            <p class="text-xs text-stone-500 dark:text-slate-400">Chọn từng tháng để theo dõi chuỗi Dấu X Đỏ và tỷ lệ hoàn thành</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <label for="year-select" class="text-xs font-bold text-stone-500 dark:text-slate-400">Năm học tập:</label>
+          <select id="year-select" onchange="changeYear(this.value)" class="bg-stone-100 dark:bg-slate-800 border border-stone-200 dark:border-slate-700 text-stone-800 dark:text-slate-100 text-xs font-extrabold px-3 py-1.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-flame-500 cursor-pointer">
+            <option value="2026" selected>2026</option>
+            <option value="2027">2027</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 12 Month Interactive Sheet Tabs -->
+      <div class="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-12 gap-2" id="month-tabs-container">
+        <!-- Rendered via JS -->
+      </div>
+    </section>
+
+    <!-- MAIN TWO-COLUMN WORKSPACE -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+      <!-- LEFT COLUMN (7 Cols): Red-X Monthly Sheet + Weekly Google Calendar Planner -->
+      <div class="lg:col-span-7 space-y-6">
+
+        <!-- Active Month Calendar Sheet -->
+        <section class="bg-white/90 dark:bg-slate-900/90 glass-card rounded-2xl border border-stone-200 dark:border-slate-800 p-4 sm:p-6 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+            <div class="flex items-center gap-3">
+              <div class="p-2.5 rounded-xl bg-gradient-to-br from-flame-500/20 to-red-500/20 text-flame-500 border border-flame-500/20">
+                <i data-lucide="calendar" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h3 class="font-black text-lg sm:text-xl text-stone-900 dark:text-white" id="active-month-title">Tháng 11 / 2026</h3>
+                <p class="text-xs text-stone-500 dark:text-slate-400" id="month-stats-summary">11/30 ngày hoàn thành (37%)</p>
+              </div>
+            </div>
+
+            <!-- Monthly Progress Bar -->
+            <div class="w-full sm:w-52">
+              <div class="flex justify-between text-xs font-bold mb-1.5">
+                <span class="text-stone-500 dark:text-slate-400">Tỷ lệ giữ chuỗi</span>
+                <span class="text-flame-600 dark:text-flame-400 font-black" id="month-completion-pct">37%</span>
+              </div>
+              <div class="w-full bg-stone-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                <div id="month-progress-bar" class="bg-gradient-to-r from-flame-500 via-red-500 to-amber-500 h-full rounded-full transition-all duration-500" style="width: 37%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Loss Aversion Psychological Reminder -->
+          <div class="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/25 flex items-start gap-2.5 text-xs text-red-700 dark:text-red-300">
+            <i data-lucide="alert-triangle" class="w-4 h-4 text-red-500 shrink-0 mt-0.5"></i>
+            <p>
+              <strong class="font-extrabold">Quy tắc Không Phá Chuỗi:</strong> Mỗi ngày hoàn thành ít nhất 1 mục tiêu sẽ thắp sáng một <strong class="underline">Dấu X Đỏ</strong>. Đừng để bất kỳ ô trống màu trắng nào xen ngang chuỗi thành tích của bạn!
+            </p>
+          </div>
+
+          <!-- Weekday Headers -->
+          <div class="grid grid-cols-7 gap-1.5 sm:gap-2 mb-2 text-center text-[11px] sm:text-xs font-extrabold text-stone-400 dark:text-slate-500 uppercase tracking-wider">
+            <div>T2</div>
+            <div>T3</div>
+            <div>T4</div>
+            <div>T5</div>
+            <div>T6</div>
+            <div>T7</div>
+            <div class="text-flame-500">CN</div>
+          </div>
+
+          <!-- Calendar Grid -->
+          <div id="calendar-grid" class="grid grid-cols-7 gap-1.5 sm:gap-2">
+            <!-- Rendered via JS -->
+          </div>
+
+          <!-- Calendar Legend -->
+          <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] text-stone-500 dark:text-slate-400 mt-5 pt-3.5 border-t border-stone-100 dark:border-slate-800">
+            <div class="flex flex-wrap items-center gap-3 sm:gap-4">
+              <div class="flex items-center gap-1.5">
+                <span class="w-4 h-4 rounded-md bg-gradient-to-br from-red-600 to-flame-500 text-white flex items-center justify-center font-black text-[10px]">✕</span>
+                <span>Đã hoàn thành (Giữ chuỗi)</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-4 h-4 rounded-md border-2 border-flame-500 bg-flame-500/10"></span>
+                <span>Hôm nay</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-4 h-4 rounded-md bg-white dark:bg-slate-800/80 border border-stone-300 dark:border-slate-700"></span>
+                <span>Chưa hoàn thành</span>
+              </div>
+            </div>
+            <span class="italic">Nhấn vào ngày bất kỳ để ghi nhật ký</span>
+          </div>
+        </section>
+
+        <!-- 6. GOOGLE CALENDAR 1-CLICK REMINDER PLANNER -->
+        <section class="bg-white/90 dark:bg-slate-900/90 glass-card rounded-2xl border border-stone-200 dark:border-slate-800 p-4 sm:p-6 shadow-sm space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+              <span class="p-2.5 rounded-xl bg-sky-500/15 text-sky-500">
+                <i data-lucide="calendar-clock" class="w-5 h-5"></i>
+              </span>
+              <div>
+                <h3 class="font-extrabold text-base sm:text-lg text-stone-900 dark:text-white">Lịch Tuần & Nhắc Nhở Google Calendar</h3>
+                <p class="text-xs text-stone-500 dark:text-slate-400">Đóng khung giờ vàng buổi sáng cho IELTS & lịch tập Gym cố định</p>
+              </div>
+            </div>
+
+            <button onclick="openAddEventModal()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-sky-600 hover:bg-sky-500 text-white flex items-center gap-1.5 shadow-sm transition cursor-pointer">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span>Thêm Lịch Mới</span>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="weekly-events-list">
+            <!-- Rendered via JS -->
+          </div>
+        </section>
+
+      </div>
+
+      <!-- RIGHT COLUMN (5 Cols): Daily Focus, Core Tasks, Study Journal & Skinner Dice -->
+      <div class="lg:col-span-5 space-y-6">
+
+        <section class="bg-white/90 dark:bg-slate-900/90 glass-card rounded-2xl border border-stone-200 dark:border-slate-800 p-4 sm:p-6 shadow-sm space-y-5 lg:sticky lg:top-[116px]">
+          
+          <!-- Selected Date Header -->
+          <div class="flex flex-wrap items-center justify-between gap-2 pb-3.5 border-b border-stone-100 dark:border-slate-800">
+            <div class="flex items-center gap-2.5">
+              <span class="p-2 rounded-xl bg-amber-500/15 text-amber-500">
+                <i data-lucide="book-open" class="w-5 h-5"></i>
+              </span>
+              <div>
+                <h3 class="font-extrabold text-base text-stone-900 dark:text-white">Chi Tiết Ngày Học</h3>
+                <p class="text-xs font-semibold text-flame-600 dark:text-flame-400" id="selected-date-display">Ngày 12/11/2026</p>
+              </div>
+            </div>
+
+            <button onclick="toggleDayCompletedStatus()" id="status-toggle-btn" class="px-3 py-1.5 text-xs font-extrabold rounded-xl border flex items-center gap-1.5 transition cursor-pointer">
+              <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+              <span id="status-toggle-text">Chưa Check-in</span>
+            </button>
+          </div>
+
+          <!-- 3. FLEXIBLE DAILY FOCUS & MICRO-TASKS ('NHIỆM VỤ CỐT LÕI') -->
+          <div class="space-y-3 bg-stone-50 dark:bg-slate-950/80 p-3.5 sm:p-4 rounded-2xl border border-stone-200/80 dark:border-slate-800">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-1.5">
+                <i data-lucide="crosshair" class="w-4 h-4 text-flame-500"></i>
+                <h4 class="text-xs sm:text-sm font-extrabold text-stone-800 dark:text-slate-100">Nhiệm Vụ Cốt Lõi & Trọng Tâm</h4>
+              </div>
+              <span id="goals-progress-badge" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-flame-500/15 text-flame-600 dark:text-flame-400">
+                0/0 hoàn thành
+              </span>
+            </div>
+
+            <!-- Daily Focus Priority -->
+            <div>
+              <label for="daily-focus-input" class="block text-[11px] font-bold text-stone-500 dark:text-slate-400 mb-1 flex items-center gap-1">
+                <i data-lucide="star" class="w-3.5 h-3.5 text-amber-500 fill-amber-500"></i>
+                <span>Trọng tâm hôm nay (Daily Focus):</span>
+              </label>
+              <input type="text" id="daily-focus-input" oninput="handleAutoSaveChange()" placeholder="VD: Viết hoàn chỉnh Task 2 Education hoặc Đẩy ngực 50kg..." class="w-full px-3 py-2 rounded-xl border border-stone-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-stone-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-flame-500 focus:outline-none">
+            </div>
+
+            <!-- Dynamic Task Builder -->
+            <div class="pt-1">
+              <label class="block text-[11px] font-bold text-stone-500 dark:text-slate-400 mb-1">Thêm mục tiêu vi mô (Micro-tasks):</label>
+              <div class="flex flex-col sm:flex-row gap-1.5">
+                <input type="text" id="new-goal-text" placeholder="Nhập việc cần làm hôm nay..." onkeydown="if(event.key==='Enter') addNewGoal()" class="flex-1 px-3 py-2 rounded-xl border border-stone-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-stone-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-flame-500 focus:outline-none">
+                <div class="flex gap-1.5">
+                  <select id="new-goal-tag" aria-label="Chọn kỹ năng" class="px-2.5 py-2 rounded-xl border border-stone-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-bold text-stone-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-flame-500 cursor-pointer">
+                    <option value="writing">Writing</option>
+                    <option value="speaking">Speaking</option>
+                    <option value="listening">Listening</option>
+                    <option value="reading">Reading</option>
+                    <option value="gym">Gym</option>
+                    <option value="lesson">Giáo án / NVSP</option>
+                    <option value="other">Khác</option>
+                  </select>
+                  <button onclick="addNewGoal()" class="px-3.5 py-2 bg-flame-600 hover:bg-flame-500 text-white rounded-xl font-bold text-xs flex items-center gap-1 transition shrink-0 cursor-pointer shadow-xs">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Thêm</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Task List Container -->
+            <div id="daily-goals-container" class="space-y-1.5 max-h-52 overflow-y-auto pr-1 pt-1">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- 4. DAILY STUDY JOURNAL ('NHẬT KÝ HỌC TẬP') -->
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <label for="journal-content" class="text-xs sm:text-sm font-extrabold text-stone-800 dark:text-slate-100 flex items-center gap-1.5">
+                <i data-lucide="pen-tool" class="w-4 h-4 text-sky-500"></i>
+                <span>Nhật Ký Học Tập & Ghi Chép</span>
+              </label>
+              <span id="autosave-indicator" class="text-[11px] font-medium text-stone-400 dark:text-slate-500">Sẵn sàng ghi chép</span>
+            </div>
+            <textarea id="journal-content" rows="5" oninput="handleAutoSaveChange()" placeholder="Ghi lại từ vựng mới, cấu trúc câu Writing tâm đắc, cảm nhận buổi dạy hoặc mức tạ hôm nay..." class="w-full text-xs sm:text-sm p-3 rounded-2xl border border-stone-200 dark:border-slate-700 bg-stone-50 dark:bg-slate-950/80 focus:outline-none focus:ring-2 focus:ring-flame-500 text-stone-900 dark:text-slate-100 placeholder:text-stone-400 dark:placeholder:text-slate-600 leading-relaxed"></textarea>
+          </div>
+
+          <!-- 5. DOPAMINE VARIABLE REWARD BOX ('CANH BẠC XÚC XẮC SKINNER') -->
+          <div class="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-yellow-500/10 border border-amber-500/30 space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <span class="flex items-center gap-2 text-xs font-extrabold text-amber-700 dark:text-amber-300">
+                <span id="dice-icon-wrap" class="inline-flex"><i data-lucide="dices" class="w-5 h-5 text-amber-500"></i></span>
+                <span>Canh Bạc Xúc Xắc Skinner</span>
+              </span>
+              <button onclick="rollDopamineDice()" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-xl text-xs font-extrabold transition shadow-xs cursor-pointer">
+                Tung Xúc Xắc Thưởng 🎲
+              </button>
+            </div>
+            <p id="dice-result-msg" class="text-xs text-amber-800/90 dark:text-amber-200/80 leading-relaxed">
+              Vừa xong 1 phần bài khó? Tung xúc xắc để nhận phần thưởng ngẫu nhiên (Trà sữa, 15p giải trí tự do, hoặc thử thách viết tiếp)!
+            </p>
+          </div>
+
+          <!-- Save & Delete Actions -->
+          <div class="flex items-center gap-2 pt-1">
+            <button onclick="saveJournalEntry(true)" class="flex-1 bg-gradient-to-r from-flame-600 to-red-600 hover:from-flame-500 hover:to-red-500 text-white py-2.5 px-4 rounded-xl font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition cursor-pointer">
+              <i data-lucide="save" class="w-4 h-4"></i>
+              <span>Lưu Nhật Ký & Giữ Chuỗi</span>
+            </button>
+            <button id="delete-entry-btn" onclick="requestDeleteJournalEntry()" title="Xóa dữ liệu ngày này" class="px-3 py-2.5 rounded-xl border border-stone-200 dark:border-slate-700 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30 text-stone-500 dark:text-slate-400 text-xs font-bold flex items-center gap-1 transition cursor-pointer">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+              <span id="delete-entry-label" class="hidden sm:inline">Xóa</span>
+            </button>
+          </div>
+
+        </section>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- MODAL 1: GOOGLE SHEETS CLOUD SYNC CONFIGURATION -->
+  <div id="sheets-modal" class="fixed inset-0 bg-black/65 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full p-5 sm:p-6 border border-stone-200 dark:border-slate-800 shadow-2xl space-y-5 my-auto">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 rounded-xl bg-emerald-500/15 text-emerald-500">
+            <i data-lucide="cloud" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h4 class="font-black text-base sm:text-lg text-stone-900 dark:text-white">Đồng Bộ Đám Mây Với Google Sheets</h4>
+            <p class="text-xs text-stone-500 dark:text-slate-400">Lưu tiến trình vĩnh viễn qua Google Apps Script — không bao giờ mất dữ liệu trên Google Sites</p>
+          </div>
+        </div>
+        <button onclick="closeSheetsSyncModal()" class="p-1.5 rounded-lg text-stone-400 hover:text-stone-600 dark:hover:text-slate-200 cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Step 1: Apps Script Code Copy Box -->
+      <div class="space-y-2">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <span class="text-xs font-extrabold text-stone-800 dark:text-slate-200">
+            Bước 1: Tạo Google Sheet mới &rarr; Tiện ích mở rộng &rarr; Apps Script &rarr; Dán mã này:
+          </span>
+          <button onclick="copyAppsScriptCode()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 text-emerald-400 text-xs font-bold flex items-center gap-1.5 border border-slate-700 transition cursor-pointer">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span>Sao chép mã Google Apps Script</span>
+          </button>
+        </div>
+
+        <pre id="apps-script-code" class="p-3 rounded-xl bg-slate-950 text-emerald-300 text-[11px] font-mono overflow-x-auto border border-slate-800 leading-relaxed select-all">function doGet(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('StreakFireData') || ss.insertSheet('StreakFireData');
+  var raw = sheet.getRange('A1').getValue();
+  var output = raw ? String(raw) : JSON.stringify({ empty: true });
+  return ContentService.createTextOutput(output).setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('StreakFireData') || ss.insertSheet('StreakFireData');
+  var payload = e.postData && e.postData.contents ? e.postData.contents : '{}';
+  sheet.getRange('A1').setValue(payload);
+  sheet.getRange('B1').setValue('Đồng bộ lúc: ' + new Date().toLocaleString('vi-VN'));
+  return ContentService.createTextOutput(JSON.stringify({ status: 'success' })).setMimeType(ContentService.MimeType.JSON);
+}</pre>
+        <p class="text-[11px] text-stone-500 dark:text-slate-400">
+          Sau khi dán mã: Nhấn <strong>Triển khai (Deploy) &rarr; Tùy chọn triển khai mới (New deployment) &rarr; Ứng dụng web (Web app)</strong> &rarr; Chọn quyền truy cập: <strong>Bất kỳ ai (Anyone)</strong> &rarr; Sao chép URL Web App dán vào ô bên dưới.
+        </p>
+      </div>
+
+      <!-- Step 2: Web App URL Input -->
+      <div class="space-y-2">
+        <label for="gas-url-input" class="block text-xs font-extrabold text-stone-800 dark:text-slate-200">
+          Bước 2: Dán đường dẫn Google Apps Script Web App URL tại đây:
+        </label>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input type="url" id="gas-url-input" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="flex-1 px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-slate-700 bg-stone-50 dark:bg-slate-950 text-stone-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          <button onclick="saveGasUrlAndConnect()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold shadow-sm transition cursor-pointer shrink-0">
+            Lưu & Kết Nối
+          </button>
+        </div>
+      </div>
+
+      <!-- Manual Sync Controls & Google Sites Tip -->
+      <div class="p-3.5 rounded-xl bg-stone-50 dark:bg-slate-950 border border-stone-200 dark:border-slate-800 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <span class="text-xs font-bold text-stone-700 dark:text-slate-300">Thao tác đồng bộ thủ công:</span>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="syncPullFromSheets(true)" class="px-3 py-1.5 rounded-xl bg-sky-600/15 hover:bg-sky-600/25 text-sky-600 dark:text-sky-400 border border-sky-500/30 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer">
+              <i data-lucide="cloud-download" class="w-3.5 h-3.5"></i>
+              <span>Tải dữ liệu từ Sheets</span>
+            </button>
+            <button onclick="syncPushToSheets(true)" class="px-3 py-1.5 rounded-xl bg-emerald-600/15 hover:bg-emerald-600/25 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer">
+              <i data-lucide="cloud-upload" class="w-3.5 h-3.5"></i>
+              <span>Đẩy dữ liệu lên Sheets</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="pt-2.5 border-t border-stone-200 dark:border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <p class="text-[11px] text-stone-500 dark:text-slate-400">
+            <strong class="text-amber-500">Mẹo cho Google Sites:</strong> Vì Google Sites xóa bộ nhớ trình duyệt khi tải lại trang, hãy tải bản HTML đã gắn sẵn link Cloud này để nhúng vào Google Sites!
+          </p>
+          <button onclick="downloadPreconfiguredHtml()" class="px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-600 dark:text-amber-300 border border-amber-500/30 text-xs font-bold flex items-center gap-1.5 shrink-0 transition cursor-pointer">
+            <i data-lucide="file-code" class="w-3.5 h-3.5"></i>
+            <span>Tải HTML gắn sẵn Link</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL 2: ADD WEEKLY GOOGLE CALENDAR EVENT -->
+  <div id="event-modal" class="fixed inset-0 bg-black/65 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-5 sm:p-6 border border-stone-200 dark:border-slate-800 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-slate-800">
+        <h4 class="font-extrabold text-base flex items-center gap-2 text-stone-900 dark:text-white">
+          <i data-lucide="calendar-plus" class="w-5 h-5 text-sky-500"></i>
+          <span>Lên Lịch Tuần & Tạo Link Google Cal</span>
+        </h4>
+        <button onclick="closeAddEventModal()" class="text-stone-400 hover:text-stone-600 dark:hover:text-slate-200 cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs sm:text-sm">
+        <div>
+          <label for="event-title" class="block font-bold mb-1 text-stone-700 dark:text-slate-300">Tiêu đề buổi học / công việc:</label>
+          <input type="text" id="event-title" placeholder="VD: Sáng việc khó — Viết IELTS Writing Task 2" class="w-full p-2.5 rounded-xl border border-stone-200 dark:border-slate-700 bg-stone-50 dark:bg-slate-950 text-stone-900 dark:text-slate-100 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="event-date" class="block font-bold mb-1 text-stone-700 dark:text-slate-300">Ngày diễn ra:</label>
+            <input type="date" id="event-date" class="w-full p-2.5 rounded-xl border border-stone-200 dark:border-slate-700 bg-stone-50 dark:bg-slate-950 text-stone-900 dark:text-slate-100 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+          </div>
+          <div>
+            <label for="event-time" class="block font-bold mb-1 text-stone-700 dark:text-slate-300">Giờ bắt đầu:</label>
+            <input type="time" id="event-time" value="07:30" class="w-full p-2.5 rounded-xl border border-stone-200 dark:border-slate-700 bg-stone-50 dark:bg-slate-950 text-stone-900 dark:text-slate-100 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label for="event-duration" class="block font-bold mb-1 text-stone-700 dark:text-slate-300">Thời lượng (phút):</label>
+          <input type="number" id="event-duration" value="60" min="10" max="480" class="w-full p-2.5 rounded-xl border border-stone-200 dark:border-slate-700 bg-stone-50 dark:bg-slate-950 text-stone-900 dark:text-slate-100 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+        </div>
+
+        <div>
+          <label for="event-desc" class="block font-bold mb-1 text-stone-700 dark:text-slate-300">Ghi chú & Tài liệu chuẩn bị:</label>
+          <textarea id="event-desc" rows="2" placeholder="VD: Tắt thông báo điện thoại, viết trọn vẹn mở bài và 2 đoạn thân bài..." class="w-full p-2.5 rounded-xl border border-stone-200 dark:border-slate-700 bg-stone-50 dark:bg-slate-950 text-stone-900 dark:text-slate-100 focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-3 border-t border-stone-100 dark:border-slate-800">
+        <button onclick="closeAddEventModal()" class="px-4 py-2 rounded-xl text-stone-500 hover:bg-stone-100 dark:hover:bg-slate-800 text-xs font-bold cursor-pointer">
+          Hủy
+        </button>
+        <button onclick="saveNewEvent()" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-extrabold shadow transition cursor-pointer">
+          Lưu Lịch Hẹn
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER (Zero alert/confirm usage) -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-[60] flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+  <script>
+    // =========================================================================
+    // CONFIGURATION & STORAGE KEYS
+    // =========================================================================
+    const DEFAULT_GAS_URL = ""; // Có thể dán trực tiếp link Google Apps Script vào đây nếu nhúng lên Google Sites
+    const STORAGE_KEY_JOURNAL = 'streakfire_journal_v2';
+    const STORAGE_KEY_SCHEDULE = 'streakfire_schedule_v2';
+    const STORAGE_KEY_THEME = 'streakfire_theme_v2';
+    const STORAGE_KEY_GAS_URL = 'streakfire_gas_url_v2';
+
+    const TARGET_DATE = new Date('2027-03-15T08:00:00');
+
+    // Application State
+    let currentYear = 2026;
+    let activeMonth = 10; // 0-indexed: 10 = Tháng 11
+    let selectedDateKey = '';
+    let journalData = {};
+    let scheduleEvents = [];
+    let gasWebAppUrl = '';
+    let autoSyncTimer = null;
+    let deleteConfirmTimeout = null;
+
+    const MONTH_NAMES = [
+      "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4",
+      "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8",
+      "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"
+    ];
+
+    const TAG_MAP = {
+      writing: { label: 'Writing', dot: 'bg-amber-300', pill: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30' },
+      speaking: { label: 'Speaking', dot: 'bg-rose-300', pill: 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30' },
+      listening: { label: 'Listening', dot: 'bg-purple-300', pill: 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30' },
+      reading: { label: 'Reading', dot: 'bg-sky-300', pill: 'bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30' },
+      gym: { label: 'Gym', dot: 'bg-emerald-300', pill: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30' },
+      lesson: { label: 'Giáo án / NVSP', dot: 'bg-indigo-300', pill: 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30' },
+      other: { label: 'Khác', dot: 'bg-stone-300', pill: 'bg-stone-500/15 text-stone-700 dark:text-slate-300 border-stone-500/30' }
+    };
+
+    const SKINNER_REWARDS = [
+      { jackpot: true, text: "🎲 JACKPOT SỐ 6! Thưởng ngay 15 phút giải trí tự do (TikTok/YouTube) không chút tội lỗi!" },
+      { jackpot: true, text: "🎲 JACKPOT SỐ 6! Tự thưởng cho bản thân 1 ly trà sữa / cà phê yêu thích ngay hôm nay!" },
+      { jackpot: false, text: "🎲 Xúc xắc ra số 5 — Suýt chạm Jackpot! Thưởng nhẹ 1 bài nhạc yêu thích rồi viết tiếp 1 đoạn nhỏ nhé!" },
+      { jackpot: false, text: "🎲 Xúc xắc ra số 3 — Chúc may mắn lần sau! Viết thêm 2 câu Writing hoặc học 5 collocations rồi tung lại!" },
+      { jackpot: false, text: "🎲 Xúc xắc ra số 4 — Gần trúng rồi! Đứng dậy vươn vai uống một ngụm nước mát và chinh phục thêm 1 mục tiêu!" },
+      { jackpot: false, text: "🎲 Xúc xắc ra số 2 — Não bộ đang thèm chiến thắng! Hoàn thành nốt 1 task nhỏ để thử vận may lần nữa!" }
+    ];
+
+    // =========================================================================
+    // TOAST NOTIFICATION & WEB AUDIO DOPAMINE FEEDBACK
+    // =========================================================================
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+
+      const styles = {
+        success: 'bg-emerald-600 text-white border-emerald-500',
+        warning: 'bg-amber-600 text-white border-amber-500',
+        error: 'bg-red-600 text-white border-red-500',
+        info: 'bg-slate-900 dark:bg-slate-800 text-white border-slate-700'
+      };
+
+      const icons = {
+        success: 'check-circle-2',
+        warning: 'alert-circle',
+        error: 'x-circle',
+        info: 'sparkles'
+      };
+
+      toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl border shadow-xl text-xs font-bold transition-all duration-300 transform translate-y-2 opacity-0 ${styles[type] || styles.info}`;
+      toast.innerHTML = `
+        <i data-lucide="${icons[type] || 'info'}" class="w-4 h-4 shrink-0"></i>
+        <span class="leading-snug">${message}</span>
+      `;
+
+      container.appendChild(toast);
+      lucide.createIcons();
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3600);
+    }
+
+    function playSuccessChime() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5 E5 G5 C6
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.value = freq;
+          const start = ctx.currentTime + idx * 0.07;
+          gain.gain.setValueAtTime(0, start);
+          gain.gain.linearRampToValueAtTime(0.18, start + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, start + 0.35);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(start);
+          osc.stop(start + 0.35);
+        });
+      } catch (err) {
+        // Ignore audio context autoplay blocks
+      }
+    }
+
+    function triggerDopamineConfetti() {
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 75,
+          spread: 65,
+          origin: { y: 0.65 },
+          colors: ['#ff5400', '#ef4444', '#f59e0b', '#10b981']
+        });
+      }
+    }
+
+    // =========================================================================
+    // INITIALIZATION & SEED DATA
+    // =========================================================================
+    function resolveGasUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const urlParam = params.get('gas');
+      if (urlParam && urlParam.startsWith('http')) {
+        localStorage.setItem(STORAGE_KEY_GAS_URL, urlParam);
+        return urlParam;
+      }
+      const saved = localStorage.getItem(STORAGE_KEY_GAS_URL);
+      if (saved && saved.startsWith('http')) return saved;
+      if (DEFAULT_GAS_URL && DEFAULT_GAS_URL.startsWith('http')) return DEFAULT_GAS_URL;
+      return '';
+    }
+
+    function initSeedData() {
+      const storedJournal = localStorage.getItem(STORAGE_KEY_JOURNAL);
+      if (storedJournal) {
+        try {
+          journalData = JSON.parse(storedJournal);
+        } catch (e) {
+          journalData = {};
+        }
+      } else {
+        journalData = {
+          "2026-11-01": {
+            completed: true,
+            focus: "Viết mở bài & Thesis Statement Task 2",
+            goals: [
+              { id: "g1", text: "Viết 2 câu mở bài Task 2 chủ đề Education", tag: "writing", completed: true },
+              { id: "g2", text: "Đẩy ngực 45kg tại phòng Gym", tag: "gym", completed: true }
+            ],
+            note: "Khởi động tháng 11 đúng quy tắc sáng việc khó."
+          },
+          "2026-11-02": {
+            completed: true,
+            focus: "Luyện Speaking Part 2 Cue Cards",
+            goals: [
+              { id: "g3", text: "Nói 3 chủ đề Technology ghi âm lại", tag: "speaking", completed: true },
+              { id: "g4", text: "Tập ngực dưới chạm mốc 50kg", tag: "gym", completed: true }
+            ],
+            note: "Phát âm trôi chảy hơn, đỡ ngập ngừng."
+          },
+          "2026-11-03": {
+            completed: true,
+            focus: "Nạp Collocations chủ đề Environment",
+            goals: [
+              { id: "g5", text: "Học 15 cụm từ vựng Writing Environment", tag: "writing", completed: true }
+            ],
+            note: "Dùng flashcard lật thẻ phản hồi tức thì rất hiệu quả."
+          },
+          "2026-11-04": {
+            completed: true,
+            focus: "Luyện đề Listening Cam 18 Test 2",
+            goals: [
+              { id: "g6", text: "Hoàn thành 40 câu Listening (đạt 32/40)", tag: "listening", completed: true },
+              { id: "g7", text: "Tập lưng xô duy trì thể lực", tag: "gym", completed: true }
+            ],
+            note: "Section 3 bắt từ khóa tốt hơn tuần trước."
+          },
+          "2026-11-05": {
+            completed: true,
+            focus: "Viết Body 1 dạng Problem & Solution",
+            goals: [
+              { id: "g8", text: "Viết hoàn chỉnh 1 đoạn Body 1 (120 từ)", tag: "writing", completed: true }
+            ],
+            note: "AI chấm Lexical Resource tiến bộ lên 6.0."
+          },
+          "2026-11-06": {
+            completed: true,
+            focus: "Rà soát lỗi ngữ pháp câu phức",
+            goals: [
+              { id: "g9", text: "Sửa 5 lỗi mệnh đề quan hệ trong bài viết cũ", tag: "writing", completed: true },
+              { id: "g10", text: "Đọc 1 bài báo khoa học The Guardian", tag: "reading", completed: true }
+            ],
+            note: "Tránh được lỗi chia động từ số ít/nhiều."
+          },
+          "2026-11-07": {
+            completed: true,
+            focus: "Giải đề Reading Cam 17",
+            goals: [
+              { id: "g11", text: "Làm trọn vẹn 3 Passages Reading (29/40)", tag: "reading", completed: true }
+            ],
+            note: "Cải thiện tốc độ Skimming đoạn văn dài."
+          },
+          "2026-11-08": {
+            completed: true,
+            focus: "Soạn giáo án tuần mới & Overview Task 1",
+            goals: [
+              { id: "g12", text: "Hoàn thiện giáo án dạy trung tâm", tag: "lesson", completed: true },
+              { id: "g13", text: "Viết Overview biểu đồ đường Task 1", tag: "writing", completed: true }
+            ],
+            note: "Giải quyết xong việc hành chính trước 20h30."
+          },
+          "2026-11-09": {
+            completed: true,
+            focus: "Đẩy ngực 50kg & Viết Body 2",
+            goals: [
+              { id: "g14", text: "Bench press đạt 50kg chuẩn form", tag: "gym", completed: true },
+              { id: "g15", text: "Viết xong Body 2 bài Essay", tag: "writing", completed: true }
+            ],
+            note: "Giữ vững chuỗi 9 ngày đỏ rực!"
+          },
+          "2026-11-10": {
+            completed: true,
+            focus: "Luyện dạng Matching Headings Reading",
+            goals: [
+              { id: "g16", text: "Luyện 2 bài Matching Headings Cam 18", tag: "reading", completed: true }
+            ],
+            note: "Nắm chắc mẹo đọc câu chủ đề đầu/cuối đoạn."
+          },
+          "2026-11-11": {
+            completed: true,
+            focus: "Bảo toàn chuỗi ngày thứ 11",
+            goals: [
+              { id: "g17", text: "Viết dàn ý & mở bài Task 2 chủ đề Technology", tag: "writing", completed: true }
+            ],
+            note: "Không để chuỗi bị đứt gãy dù lịch dạy bận."
+          }
+        };
+        localStorage.setItem(STORAGE_KEY_JOURNAL, JSON.stringify(journalData));
+      }
+
+      const storedSchedule = localStorage.getItem(STORAGE_KEY_SCHEDULE);
+      if (storedSchedule) {
+        try {
+          scheduleEvents = JSON.parse(storedSchedule);
+        } catch (e) {
+          scheduleEvents = [];
+        }
+      } else {
+        scheduleEvents = [
+          {
+            id: 'ev-1',
+            title: 'Sáng việc khó: Viết IELTS Writing Task 2',
+            date: '2026-11-13',
+            time: '07:30',
+            duration: 60,
+            desc: 'Để điện thoại ngoài tầm mắt. Viết hoàn chỉnh mở bài và 2 đoạn thân bài trong 60 phút.'
+          },
+          {
+            id: 'ev-2',
+            title: 'Tập GYM: Ngực & Vai (Duy trì mốc 50kg)',
+            date: '2026-11-13',
+            time: '14:30',
+            duration: 75,
+            desc: 'Nạp năng lượng thể chất, giải tỏa căng thẳng sau ca làm việc.'
+          },
+          {
+            id: 'ev-3',
+            title: 'Luyện Đề Listening & Reading Tối Thứ 7',
+            date: '2026-11-14',
+            time: '18:30',
+            duration: 120,
+            desc: 'Bấm giờ nghiêm túc như thi thật và ghi chú lỗi sai vào sổ.'
+          },
+          {
+            id: 'ev-4',
+            title: 'Soạn Giáo Án & Ôn Nghiệp Vụ Sư Phạm',
+            date: '2026-11-15',
+            time: '09:00',
+            duration: 90,
+            desc: 'Hoàn tất tài liệu giảng dạy cho tuần mới trước buổi chiều.'
+          }
+        ];
+        localStorage.setItem(STORAGE_KEY_SCHEDULE, JSON.stringify(scheduleEvents));
+      }
+    }
+
+    // =========================================================================
+    // DATE HELPERS & STREAK CALCULATION
+    // =========================================================================
+    function formatDateKey(year, month, day) {
+      return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    }
+
+    function parseDateKey(key) {
+      const [y, m, d] = key.split('-').map(Number);
+      return { year: y, month: m - 1, day: d };
+    }
+
+    function calculateStreak() {
+      let streak = 0;
+      const now = new Date();
+      let cursor = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const todayKey = formatDateKey(cursor.getFullYear(), cursor.getMonth(), cursor.getDate());
+      const checkedToday = Boolean(journalData[todayKey] && journalData[todayKey].completed);
+
+      if (!checkedToday) {
+        cursor.setDate(cursor.getDate() - 1);
+      }
+
+      while (true) {
+        const key = formatDateKey(cursor.getFullYear(), cursor.getMonth(), cursor.getDate());
+        if (journalData[key] && journalData[key].completed) {
+          streak++;
+          cursor.setDate(cursor.getDate() - 1);
+        } else {
+          break;
+        }
+      }
+
+      return { streak, checkedToday };
+    }
+
+    function updateStreakAndBanner() {
+      const { streak, checkedToday } = calculateStreak();
+      document.getElementById('header-streak-count').innerText = streak;
+
+      const warningEl = document.getElementById('streak-warning-text');
+      const quickBtn = document.getElementById('quick-checkin-btn');
+
+      if (checkedToday) {
+        warningEl.innerHTML = `🔥 Xuất sắc! Bạn đã giữ vững chuỗi <strong>${streak} ngày</strong> liên tiếp hôm nay. Đừng để ngọn lửa tắt vào ngày mai!`;
+        quickBtn.innerText = "Đã Giữ Chuỗi ✓";
+        quickBtn.className = "bg-emerald-600 text-white px-3.5 py-1.5 rounded-full text-xs font-extrabold tracking-wide transition shadow-sm cursor-pointer";
+      } else {
+        warningEl.innerHTML = `⚠️ Cảnh báo Nỗi Sợ Mất Mát: Nếu bạn không check-in hôm nay, chuỗi <strong>${streak} ngày nỗ lực</strong> sẽ bị xóa sạch về 0!`;
+        quickBtn.innerText = "Ghi nhận hôm nay ⚡";
+        quickBtn.className = "bg-white text-flame-700 hover:bg-amber-50 px-3.5 py-1.5 rounded-full text-xs font-extrabold tracking-wide transition shadow-sm cursor-pointer";
+      }
+    }
+
+    function updateCountdown() {
+      const now = new Date();
+      const diffMs = TARGET_DATE - now;
+      const daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      document.getElementById('countdown-text').innerText =
+        daysLeft > 0 ? `Còn ${daysLeft} ngày nữa` : "Đã đến ngày thi mục tiêu!";
+    }
+
+    // =========================================================================
+    // 12-MONTH SHEETS & RED-X CALENDAR GRID
+    // =========================================================================
+    function renderMonthTabs() {
+      const container = document.getElementById('month-tabs-container');
+      container.innerHTML = '';
+
+      MONTH_NAMES.forEach((name, idx) => {
+        const isActive = idx === activeMonth;
+        const totalDays = new Date(currentYear, idx + 1, 0).getDate();
+        let completedDays = 0;
+
+        for (let d = 1; d <= totalDays; d++) {
+          const k = formatDateKey(currentYear, idx, d);
+          if (journalData[k] && journalData[k].completed) completedDays++;
+        }
+
+        const pct = Math.round((completedDays / totalDays) * 100);
+        const btn = document.createElement('button');
+        btn.onclick = () => switchMonthSheet(idx);
+        btn.className = `p-2.5 rounded-xl text-xs font-bold flex flex-col items-center justify-center gap-1 transition-all duration-200 border cursor-pointer ${
+          isActive
+            ? 'bg-gradient-to-br from-flame-500 via-red-600 to-amber-600 text-white border-transparent shadow-md scale-[1.03]'
+            : 'bg-stone-50 dark:bg-slate-800/70 hover:bg-stone-100 dark:hover:bg-slate-800 text-stone-700 dark:text-slate-300 border-stone-200 dark:border-slate-700/80'
+        }`;
+
+        btn.innerHTML = `
+          <div class="flex items-center gap-1">
+            <i data-lucide="${isActive ? 'folder-open' : 'folder'}" class="w-3.5 h-3.5"></i>
+            <span>${name}</span>
+          </div>
+          <span class="text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${
+            isActive
+              ? 'bg-white/20 text-white'
+              : pct > 0
+                ? 'bg-flame-500/15 text-flame-600 dark:text-flame-400'
+                : 'bg-stone-200/70 dark:bg-slate-700 text-stone-500 dark:text-slate-400'
+          }">${pct}%</span>
+        `;
+        container.appendChild(btn);
+      });
+
+      lucide.createIcons();
+    }
+
+    function switchMonthSheet(monthIdx) {
+      activeMonth = monthIdx;
+      renderMonthTabs();
+      renderCalendarGrid();
+    }
+
+    function changeYear(yearVal) {
+      currentYear = parseInt(yearVal, 10);
+      renderMonthTabs();
+      renderCalendarGrid();
+    }
+
+    function renderCalendarGrid() {
+      const grid = document.getElementById('calendar-grid');
+      grid.innerHTML = '';
+
+      document.getElementById('active-month-title').innerText = `${MONTH_NAMES[activeMonth]} / ${currentYear}`;
+
+      const firstDay = new Date(currentYear, activeMonth, 1).getDay();
+      const startCol = firstDay === 0 ? 6 : firstDay - 1;
+      const totalDays = new Date(currentYear, activeMonth + 1, 0).getDate();
+
+      for (let i = 0; i < startCol; i++) {
+        const blank = document.createElement('div');
+        blank.className = 'aspect-square rounded-xl bg-stone-100/50 dark:bg-slate-950/40 border border-dashed border-stone-200/70 dark:border-slate-800/50 opacity-40';
+        grid.appendChild(blank);
+      }
+
+      let completedCount = 0;
+      const now = new Date();
+      const todayKey = formatDateKey(now.getFullYear(), now.getMonth(), now.getDate());
+
+      for (let day = 1; day <= totalDays; day++) {
+        const dateKey = formatDateKey(currentYear, activeMonth, day);
+        const entry = journalData[dateKey] || null;
+        const isCompleted = Boolean(entry && entry.completed);
+        if (isCompleted) completedCount++;
+
+        const isToday = dateKey === todayKey;
+        const isSelected = dateKey === selectedDateKey;
+
+        const cell = document.createElement('div');
+        cell.onclick = () => selectDate(dateKey);
+        cell.className = `group relative aspect-square rounded-xl border flex flex-col items-center justify-between p-1.5 sm:p-2 cursor-pointer transition-all duration-150 select-none ${
+          isSelected
+            ? 'ring-2 ring-flame-500 ring-offset-2 ring-offset-stone-100 dark:ring-offset-slate-900 z-10 scale-105 shadow-lg'
+            : 'hover:border-flame-400'
+        } ${
+          isCompleted
+            ? 'bg-gradient-to-br from-red-600 via-flame-600 to-amber-600 text-white border-red-500 shadow-sm'
+            : isToday
+              ? 'bg-white dark:bg-slate-800 border-2 border-flame-500 text-flame-600 dark:text-flame-300 font-bold'
+              : 'bg-white dark:bg-slate-900/90 border-stone-200 dark:border-slate-800 text-stone-700 dark:text-slate-300'
+        }`;
+
+        // Colored skill dots for logged tasks
+        let dotsHtml = '';
+        if (entry && Array.isArray(entry.goals) && entry.goals.length > 0) {
+          const uniqueTags = [...new Set(entry.goals.map(g => g.tag))].slice(0, 4);
+          dotsHtml = uniqueTags.map(t => {
+            const info = TAG_MAP[t] || TAG_MAP.other;
+            return `<span class="w-1.5 h-1.5 rounded-full ${info.dot}" title="${info.label}"></span>`;
+          }).join('');
+        }
+
+        cell.innerHTML = `
+          <div class="w-full flex items-center justify-between text-[11px] sm:text-xs">
+            <span class="font-extrabold">${day}</span>
+            ${isToday ? '<span class="text-[8px] sm:text-[9px] px-1 rounded bg-flame-500 text-white font-black uppercase">Nay</span>' : ''}
+          </div>
+          <div class="my-auto flex items-center justify-center">
+            ${isCompleted
+              ? '<span class="text-xl sm:text-2xl font-black text-amber-200 drop-shadow">✕</span>'
+              : '<span class="text-xs text-stone-300 dark:text-slate-700 group-hover:text-flame-400">•</span>'
+            }
+          </div>
+          <div class="w-full flex items-center justify-center gap-1 min-h-[6px]">
+            ${dotsHtml}
+          </div>
+        `;
+        grid.appendChild(cell);
+      }
+
+      const pct = Math.round((completedCount / totalDays) * 100);
+      document.getElementById('month-stats-summary').innerText = `${completedCount}/${totalDays} ngày hoàn thành (${pct}%)`;
+      document.getElementById('month-completion-pct').innerText = `${pct}%`;
+      document.getElementById('month-progress-bar').style.width = `${pct}%`;
+
+      updateStreakAndBanner();
+    }
+
+    // =========================================================================
+    // DAILY FOCUS, MICRO-TASKS & STUDY JOURNAL
+    // =========================================================================
+    function ensureDateRecord(dateKey) {
+      if (!journalData[dateKey]) {
+        journalData[dateKey] = {
+          completed: false,
+          focus: "",
+          goals: [],
+          note: ""
+        };
+      }
+      if (!Array.isArray(journalData[dateKey].goals)) {
+        journalData[dateKey].goals = [];
+      }
+      return journalData[dateKey];
+    }
+
+    function selectDate(dateKey) {
+      selectedDateKey = dateKey;
+      renderCalendarGrid();
+
+      const { year, month, day } = parseDateKey(dateKey);
+      document.getElementById('selected-date-display').innerText = `Ngày ${String(day).padStart(2, '0')}/${String(month + 1).padStart(2, '0')}/${year}`;
+
+      const record = journalData[dateKey] || { completed: false, focus: "", goals: [], note: "" };
+      document.getElementById('daily-focus-input').value = record.focus || "";
+      document.getElementById('journal-content').value = record.note || "";
+      document.getElementById('autosave-indicator').innerText = "Sẵn sàng ghi chép";
+
+      renderDailyGoalsList(record.goals || []);
+      updateStatusToggleButton(Boolean(record.completed));
+    }
+
+    function renderDailyGoalsList(goals) {
+      const container = document.getElementById('daily-goals-container');
+      const badge = document.getElementById('goals-progress-badge');
+      container.innerHTML = '';
+
+      if (!goals || goals.length === 0) {
+        container.innerHTML = `<div class="text-[11px] text-stone-400 dark:text-slate-500 italic py-3 text-center bg-white dark:bg-slate-900/60 rounded-xl border border-dashed border-stone-200 dark:border-slate-800">Chưa có mục tiêu nào cho ngày này. Hãy thêm 1 việc nhỏ để khởi động!</div>`;
+        badge.innerText = '0/0 hoàn thành';
+        return;
+      }
+
+      let doneCount = 0;
+      goals.forEach(goal => {
+        if (goal.completed) doneCount++;
+        const tagMeta = TAG_MAP[goal.tag] || TAG_MAP.other;
+
+        const item = document.createElement('div');
+        item.className = `flex items-center justify-between gap-2 p-2 rounded-xl border transition ${
+          goal.completed
+            ? 'bg-stone-100/80 dark:bg-slate-900/50 border-stone-200/80 dark:border-slate-800/80 opacity-85'
+            : 'bg-white dark:bg-slate-900 border-stone-200 dark:border-slate-700/80'
+        }`;
+
+        item.innerHTML = `
+          <label class="flex items-center gap-2.5 flex-1 cursor-pointer min-w-0">
+            <input type="checkbox" ${goal.completed ? 'checked' : ''} onchange="toggleGoalCheck('${goal.id}')" class="w-4 h-4 rounded accent-flame-600 cursor-pointer shrink-0">
+            <span class="text-xs truncate ${goal.completed ? 'line-through text-stone-400 dark:text-slate-500' : 'font-semibold text-stone-800 dark:text-slate-100'}">${escapeHtml(goal.text)}</span>
+          </label>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <span class="text-[10px] px-2 py-0.5 rounded-md border font-bold ${tagMeta.pill}">${tagMeta.label}</span>
+            <button onclick="removeGoal('${goal.id}')" aria-label="Xóa mục tiêu" class="p-1 rounded-lg text-stone-400 hover:text-red-500 hover:bg-red-500/10 transition cursor-pointer">
+              <i data-lucide="x" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+
+      badge.innerText = `${doneCount}/${goals.length} hoàn thành`;
+      lucide.createIcons();
+    }
+
+    function addNewGoal() {
+      if (!selectedDateKey) return;
+      const input = document.getElementById('new-goal-text');
+      const tagSelect = document.getElementById('new-goal-tag');
+      const text = input.value.trim();
+      if (!text) {
+        showToast("Hãy nhập nội dung mục tiêu trước khi thêm!", "warning");
+        input.focus();
+        return;
+      }
+
+      const record = ensureDateRecord(selectedDateKey);
+      record.goals.push({
+        id: 'g_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+        text,
+        tag: tagSelect.value,
+        completed: false
+      });
+
+      input.value = '';
+      persistLocalAndScheduleSync();
+      renderDailyGoalsList(record.goals);
+      renderCalendarGrid();
+    }
+
+    function toggleGoalCheck(goalId) {
+      if (!selectedDateKey || !journalData[selectedDateKey]) return;
+      const record = journalData[selectedDateKey];
+      const goal = record.goals.find(g => g.id === goalId);
+      if (!goal) return;
+
+      goal.completed = !goal.completed;
+      const anyDone = record.goals.some(g => g.completed);
+      record.completed = anyDone;
+
+      persistLocalAndScheduleSync();
+      renderDailyGoalsList(record.goals);
+      updateStatusToggleButton(record.completed);
+      renderCalendarGrid();
+      renderMonthTabs();
+
+      if (goal.completed) {
+        triggerDopamineConfetti();
+        playSuccessChime();
+      }
+    }
+
+    function removeGoal(goalId) {
+      if (!selectedDateKey || !journalData[selectedDateKey]) return;
+      const record = journalData[selectedDateKey];
+      record.goals = record.goals.filter(g => g.id !== goalId);
+
+      const anyDone = record.goals.some(g => g.completed);
+      if (!anyDone && !record.note.trim() && !record.focus.trim()) {
+        record.completed = false;
+      }
+
+      persistLocalAndScheduleSync();
+      renderDailyGoalsList(record.goals);
+      updateStatusToggleButton(record.completed);
+      renderCalendarGrid();
+      renderMonthTabs();
+    }
+
+    function handleAutoSaveChange() {
+      if (!selectedDateKey) return;
+      const record = ensureDateRecord(selectedDateKey);
+      record.focus = document.getElementById('daily-focus-input').value;
+      record.note = document.getElementById('journal-content').value;
+
+      const now = new Date();
+      const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      document.getElementById('autosave-indicator').innerText = `Đã lưu tự động lúc ${timeStr}`;
+
+      persistLocalAndScheduleSync();
+    }
+
+    function updateStatusToggleButton(isCompleted) {
+      const btn = document.getElementById('status-toggle-btn');
+      const label = document.getElementById('status-toggle-text');
+      if (isCompleted) {
+        btn.className = "px-3 py-1.5 text-xs font-extrabold rounded-xl bg-red-600 text-white border border-red-500 flex items-center gap-1.5 shadow-sm transition cursor-pointer";
+        label.innerText = "Đã Đánh Dấu X ✓";
+      } else {
+        btn.className = "px-3 py-1.5 text-xs font-extrabold rounded-xl border border-stone-300 dark:border-slate-700 text-stone-600 dark:text-slate-300 hover:bg-stone-100 dark:hover:bg-slate-800 flex items-center gap-1.5 transition cursor-pointer";
+        label.innerText = "Chưa Check-in";
+      }
+    }
+
+    function toggleDayCompletedStatus() {
+      if (!selectedDateKey) return;
+      const record = ensureDateRecord(selectedDateKey);
+      record.completed = !record.completed;
+
+      persistLocalAndScheduleSync();
+      updateStatusToggleButton(record.completed);
+      renderCalendarGrid();
+      renderMonthTabs();
+
+      if (record.completed) {
+        triggerDopamineConfetti();
+        playSuccessChime();
+        showToast("Đã thắp sáng Dấu X Đỏ! Chuỗi thành tích được bảo toàn.", "success");
+      }
+    }
+
+    function saveJournalEntry(manualTrigger = false) {
+      if (!selectedDateKey) {
+        const now = new Date();
+        selectedDateKey = formatDateKey(now.getFullYear(), now.getMonth(), now.getDate());
+      }
+
+      const record = ensureDateRecord(selectedDateKey);
+      record.focus = document.getElementById('daily-focus-input').value.trim();
+      record.note = document.getElementById('journal-content').value.trim();
+
+      const hasDoneGoal = record.goals.some(g => g.completed);
+      const shouldMarkComplete = hasDoneGoal || record.note.length > 0 || record.focus.length > 0;
+      record.completed = shouldMarkComplete;
+
+      persistLocalAndScheduleSync();
+      renderCalendarGrid();
+      renderMonthTabs();
+      updateStatusToggleButton(shouldMarkComplete);
+
+      if (manualTrigger) {
+        if (shouldMarkComplete) {
+          triggerDopamineConfetti();
+          playSuccessChime();
+          showToast("Đã lưu nhật ký và cập nhật chuỗi Streak!", "success");
+        } else {
+          showToast("Đã lưu trạng thái ngày học.", "info");
+        }
+      }
+    }
+
+    function requestDeleteJournalEntry() {
+      if (!selectedDateKey) return;
+      const btn = document.getElementById('delete-entry-btn');
+      const label = document.getElementById('delete-entry-label');
+
+      if (btn.dataset.confirming !== 'true') {
+        btn.dataset.confirming = 'true';
+        btn.classList.add('bg-red-600', 'text-white', 'border-red-600');
+        label.classList.remove('hidden');
+        label.innerText = 'Chắc chắn xóa?';
+
+        clearTimeout(deleteConfirmTimeout);
+        deleteConfirmTimeout = setTimeout(() => {
+          btn.dataset.confirming = 'false';
+          btn.classList.remove('bg-red-600', 'text-white', 'border-red-600');
+          label.innerText = 'Xóa';
+        }, 3000);
+        return;
+      }
+
+      clearTimeout(deleteConfirmTimeout);
+      btn.dataset.confirming = 'false';
+      btn.classList.remove('bg-red-600', 'text-white', 'border-red-600');
+      label.innerText = 'Xóa';
+
+      delete journalData[selectedDateKey];
+      persistLocalAndScheduleSync();
+      selectDate(selectedDateKey);
+      renderCalendarGrid();
+      renderMonthTabs();
+      showToast("Đã xóa dữ liệu của ngày đã chọn.", "info");
+    }
+
+    function quickTodayCheckin() {
+      const now = new Date();
+      const todayKey = formatDateKey(now.getFullYear(), now.getMonth(), now.getDate());
+      currentYear = now.getFullYear();
+      activeMonth = now.getMonth();
+      document.getElementById('year-select').value = String(currentYear);
+
+      const record = ensureDateRecord(todayKey);
+      if (!record.focus) {
+        record.focus = "Hoàn thành nhiệm vụ giữ chuỗi hôm nay";
+      }
+      if (record.goals.length === 0) {
+        record.goals.push({
+          id: 'g_' + Date.now(),
+          text: "Hoàn thành ít nhất 1 bước nhỏ cho mục tiêu IELTS 7.0",
+          tag: "writing",
+          completed: true
+        });
+      } else {
+        record.goals[0].completed = true;
+      }
+      record.completed = true;
+
+      persistLocalAndScheduleSync();
+      renderMonthTabs();
+      selectDate(todayKey);
+      triggerDopamineConfetti();
+      playSuccessChime();
+      showToast("Check-in hôm nay thành công! Ngọn lửa Streak tiếp tục cháy.", "success");
+    }
+
+    // =========================================================================
+    // SKINNER VARIABLE DOPAMINE DICE ROLLER
+    // =========================================================================
+    function rollDopamineDice() {
+      const iconWrap = document.getElementById('dice-icon-wrap');
+      const msgEl = document.getElementById('dice-result-msg');
+
+      iconWrap.classList.remove('animate-dice-shake');
+      void iconWrap.offsetWidth;
+      iconWrap.classList.add('animate-dice-shake');
+
+      const pick = SKINNER_REWARDS[Math.floor(Math.random() * SKINNER_REWARDS.length)];
+      if (pick.jackpot) {
+        triggerDopamineConfetti();
+        playSuccessChime();
+        msgEl.innerHTML = `<span class="text-emerald-600 dark:text-emerald-400 font-extrabold">${pick.text}</span>`;
+      } else {
+        msgEl.innerHTML = `<span class="font-semibold">${pick.text}</span>`;
+      }
+    }
+
+    // =========================================================================
+    // WEEKLY GOOGLE CALENDAR PLANNER
+    // =========================================================================
+    function renderWeeklySchedule() {
+      const container = document.getElementById('weekly-events-list');
+      container.innerHTML = '';
+
+      if (scheduleEvents.length === 0) {
+        container.innerHTML = `<div class="col-span-2 text-xs text-stone-400 dark:text-slate-500 italic py-6 text-center border border-dashed border-stone-200 dark:border-slate-800 rounded-xl">Chưa có lịch hẹn nào. Hãy bấm "Thêm Lịch Mới" để đồng bộ Google Calendar.</div>`;
+        return;
+      }
+
+      scheduleEvents.forEach(evt => {
+        const startDt = new Date(`${evt.date}T${evt.time}:00`);
+        const endDt = new Date(startDt.getTime() + (evt.duration || 60) * 60000);
+        const toGCalIso = (d) => d.toISOString().replace(/-|:|\.\d\d\d/g, '');
+
+        const gcalLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(evt.title)}&dates=${toGCalIso(startDt)}/${toGCalIso(endDt)}&details=${encodeURIComponent(evt.desc || '')}&sf=true&output=xml`;
+
+        const card = document.createElement('div');
+        card.className = "p-3.5 rounded-2xl border border-stone-200 dark:border-slate-800 bg-stone-50/80 dark:bg-slate-950/70 flex flex-col justify-between gap-3 hover:border-sky-500/50 transition";
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[11px] font-extrabold px-2.5 py-0.5 rounded-lg bg-sky-500/15 text-sky-600 dark:text-sky-400">
+                ${evt.date} • ${evt.time} (${evt.duration}p)
+              </span>
+              <button onclick="deleteEvent('${evt.id}')" aria-label="Xóa lịch" class="p-1 rounded-lg text-stone-400 hover:text-red-500 hover:bg-red-500/10 transition cursor-pointer">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+            <h5 class="font-bold text-xs sm:text-sm text-stone-900 dark:text-white mt-2">${escapeHtml(evt.title)}</h5>
+            <p class="text-[11px] text-stone-500 dark:text-slate-400 mt-1 line-clamp-2">${escapeHtml(evt.desc || 'Không có ghi chú thêm')}</p>
+          </div>
+
+          <div class="pt-2.5 border-t border-stone-200/80 dark:border-slate-800 flex items-center justify-between">
+            <span class="text-[10px] font-semibold text-stone-400">1-Click Reminder</span>
+            <a href="${gcalLink}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs font-extrabold text-sky-600 dark:text-sky-400 hover:underline">
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+              <span>Thêm vào Google Calendar</span>
+            </a>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    function openAddEventModal() {
+      const now = new Date();
+      document.getElementById('event-date').value = formatDateKey(now.getFullYear(), now.getMonth(), now.getDate());
+      document.getElementById('event-modal').classList.remove('hidden');
+    }
+
+    function closeAddEventModal() {
+      document.getElementById('event-modal').classList.add('hidden');
+    }
+
+    function saveNewEvent() {
+      const title = document.getElementById('event-title').value.trim();
+      const date = document.getElementById('event-date').value;
+      const time = document.getElementById('event-time').value;
+      const duration = parseInt(document.getElementById('event-duration').value, 10) || 60;
+      const desc = document.getElementById('event-desc').value.trim();
+
+      if (!title || !date || !time) {
+        showToast("Vui lòng nhập đầy đủ tiêu đề, ngày và giờ bắt đầu!", "warning");
+        return;
+      }
+
+      scheduleEvents.unshift({
+        id: 'ev_' + Date.now(),
+        title,
+        date,
+        time,
+        duration,
+        desc
+      });
+
+      persistLocalAndScheduleSync();
+      renderWeeklySchedule();
+      closeAddEventModal();
+
+      document.getElementById('event-title').value = '';
+      document.getElementById('event-desc').value = '';
+      showToast("Đã thêm lịch mới! Bấm 'Thêm vào Google Calendar' để nhận nhắc nhở.", "success");
+    }
+
+    function deleteEvent(id) {
+      scheduleEvents = scheduleEvents.filter(e => e.id !== id);
+      persistLocalAndScheduleSync();
+      renderWeeklySchedule();
+      showToast("Đã xóa lịch hẹn.", "info");
+    }
+
+    // =========================================================================
+    // UPGRADE: EXPORT / IMPORT JSON BACKUP & GOOGLE SHEETS AUTO-SYNC
+    // =========================================================================
+    function buildFullBackupPayload() {
+      return {
+        app: "StreakFire Journal",
+        version: "2.0",
+        exportedAt: new Date().toISOString(),
+        settings: {
+          currentYear,
+          activeMonth,
+          gasWebAppUrl
+        },
+        journalData,
+        scheduleEvents
+      };
+    }
+
+    function exportBackupJSON() {
+      try {
+        const payload = buildFullBackupPayload();
+        const jsonStr = JSON.stringify(payload, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+
+        const now = new Date();
+        const fileName = `streakfire-backup-${formatDateKey(now.getFullYear(), now.getMonth(), now.getDate())}.json`;
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showToast(`Đã xuất file sao lưu "${fileName}" thành công!`, "success");
+      } catch (err) {
+        showToast("Không thể xuất file backup: " + err.message, "error");
+      }
+    }
+
+    function triggerImportJSON() {
+      const input = document.getElementById('import-json-input');
+      input.value = '';
+      input.click();
+    }
+
+    function handleImportJSON(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (!parsed || typeof parsed !== 'object' || !parsed.journalData) {
+            throw new Error("Cấu trúc file JSON không hợp lệ.");
+          }
+
+          journalData = parsed.journalData || {};
+          if (Array.isArray(parsed.scheduleEvents)) {
+            scheduleEvents = parsed.scheduleEvents;
+          }
+          if (parsed.settings && parsed.settings.gasWebAppUrl && !gasWebAppUrl) {
+            gasWebAppUrl = parsed.settings.gasWebAppUrl;
+            localStorage.setItem(STORAGE_KEY_GAS_URL, gasWebAppUrl);
+          }
+
+          persistLocalAndScheduleSync();
+          renderMonthTabs();
+          renderCalendarGrid();
+          selectDate(selectedDateKey || formatDateKey(currentYear, activeMonth, 1));
+          renderWeeklySchedule();
+          triggerDopamineConfetti();
+          showToast("Khôi phục dữ liệu từ file Backup (.json) thành công!", "success");
+        } catch (err) {
+          showToast("Lỗi nhập file JSON: " + err.message, "error");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // Cloud Status Badge Updater
+    function setCloudSyncStatus(state, customLabel) {
+      const dot = document.getElementById('cloud-status-dot');
+      const text = document.getElementById('cloud-status-text');
+
+      if (state === 'disconnected') {
+        dot.className = 'w-2 h-2 rounded-full bg-stone-400';
+        text.innerText = customLabel || 'Chưa kết nối';
+      } else if (state === 'syncing') {
+        dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-ping';
+        text.innerText = customLabel || 'Đang đồng bộ...';
+      } else if (state === 'synced') {
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+        text.innerText = customLabel || 'Đã đồng bộ Cloud';
+      } else if (state === 'error') {
+        dot.className = 'w-2 h-2 rounded-full bg-red-500';
+        text.innerText = customLabel || 'Lỗi đồng bộ';
+      }
+    }
+
+    function persistLocalAndScheduleSync() {
+      localStorage.setItem(STORAGE_KEY_JOURNAL, JSON.stringify(journalData));
+      localStorage.setItem(STORAGE_KEY_SCHEDULE, JSON.stringify(scheduleEvents));
+
+      if (gasWebAppUrl) {
+        setCloudSyncStatus('syncing', 'Đang đồng bộ...');
+        clearTimeout(autoSyncTimer);
+        autoSyncTimer = setTimeout(() => {
+          syncPushToSheets(false);
+        }, 1500);
+      }
+    }
+
+    function openSheetsSyncModal() {
+      document.getElementById('gas-url-input').value = gasWebAppUrl || '';
+      document.getElementById('sheets-modal').classList.remove('hidden');
+    }
+
+    function closeSheetsSyncModal() {
+      document.getElementById('sheets-modal').classList.add('hidden');
+    }
+
+    function copyAppsScriptCode() {
+      const code = document.getElementById('apps-script-code').innerText;
+      const textarea = document.createElement('textarea');
+      textarea.value = code;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        showToast("Đã sao chép mã Google Apps Script vào bộ nhớ tạm!", "success");
+      } catch (err) {
+        showToast("Không thể tự động sao chép, hãy bôi đen đoạn mã và nhấn Ctrl+C.", "warning");
+      }
+      document.body.removeChild(textarea);
+    }
+
+    async function saveGasUrlAndConnect() {
+      const rawUrl = document.getElementById('gas-url-input').value.trim();
+      if (!rawUrl) {
+        gasWebAppUrl = '';
+        localStorage.removeItem(STORAGE_KEY_GAS_URL);
+        setCloudSyncStatus('disconnected');
+        showToast("Đã ngắt kết nối Google Sheets.", "info");
+        return;
+      }
+
+      if (!rawUrl.startsWith('https://script.google.com/')) {
+        showToast("URL chưa đúng định dạng Google Apps Script (phải bắt đầu bằng https://script.google.com/...).", "warning");
+        return;
+      }
+
+      gasWebAppUrl = rawUrl;
+      localStorage.setItem(STORAGE_KEY_GAS_URL, gasWebAppUrl);
+      showToast("Đã lưu URL! Đang kiểm tra kết nối với Google Sheets...", "info");
+      await syncPullFromSheets(true, true);
+    }
+
+    async function syncPullFromSheets(notifyUser = false, pushIfSheetEmpty = false) {
+      if (!gasWebAppUrl) {
+        setCloudSyncStatus('disconnected');
+        if (notifyUser) showToast("Vui lòng dán Google Apps Script URL trước!", "warning");
+        return;
+      }
+
+      setCloudSyncStatus('syncing', 'Đang tải Cloud...');
+      try {
+        const res = await fetch(gasWebAppUrl, {
+          method: 'GET',
+          redirect: 'follow'
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const data = await res.json();
+        if (data && data.empty) {
+          // Sheet is brand new -> push current local state up so it's initialized
+          if (pushIfSheetEmpty) {
+            await syncPushToSheets(notifyUser);
+          } else {
+            setCloudSyncStatus('synced', 'Đã đồng bộ Cloud');
+          }
+          return;
+        }
+
+        if (data && data.journalData) {
+          journalData = data.journalData;
+          localStorage.setItem(STORAGE_KEY_JOURNAL, JSON.stringify(journalData));
+        }
+        if (data && Array.isArray(data.scheduleEvents)) {
+          scheduleEvents = data.scheduleEvents;
+          localStorage.setItem(STORAGE_KEY_SCHEDULE, JSON.stringify(scheduleEvents));
+        }
+
+        renderMonthTabs();
+        renderCalendarGrid();
+        if (selectedDateKey) selectDate(selectedDateKey);
+        renderWeeklySchedule();
+
+        setCloudSyncStatus('synced', 'Đã đồng bộ Cloud');
+        if (notifyUser) {
+          showToast("Đã tải dữ liệu mới nhất từ Google Sheets!", "success");
+        }
+      } catch (err) {
+        console.error("Cloud Pull Error:", err);
+        setCloudSyncStatus('error', 'Lỗi đồng bộ');
+        if (notifyUser) {
+          showToast("Không thể kết nối Google Sheets. Kiểm tra lại quyền 'Anyone' khi Deploy Web App.", "error");
+        }
+      }
+    }
+
+    async function syncPushToSheets(notifyUser = false) {
+      if (!gasWebAppUrl) {
+        setCloudSyncStatus('disconnected');
+        if (notifyUser) showToast("Chưa cấu hình Google Apps Script URL!", "warning");
+        return;
+      }
+
+      setCloudSyncStatus('syncing', 'Đang đồng bộ...');
+      try {
+        const payload = buildFullBackupPayload();
+        // Use text/plain;charset=utf-8 to avoid CORS preflight OPTIONS issues on Google Apps Script
+        const res = await fetch(gasWebAppUrl, {
+          method: 'POST',
+          redirect: 'follow',
+          headers: {
+            'Content-Type': 'text/plain;charset=utf-8'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        setCloudSyncStatus('synced', 'Đã đồng bộ Cloud');
+        if (notifyUser) {
+          showToast("Đã đẩy toàn bộ dữ liệu lên Google Sheets thành công!", "success");
+        }
+      } catch (err) {
+        console.error("Cloud Push Error:", err);
+        setCloudSyncStatus('error', 'Lỗi đồng bộ');
+        if (notifyUser) {
+          showToast("Lỗi khi đẩy dữ liệu lên Sheets. Hãy thử lại hoặc xuất file .json dự phòng.", "error");
+        }
+      }
+    }
+
+    // Generates a standalone HTML file with the user's GAS URL baked into DEFAULT_GAS_URL for Google Sites embedding
+    function downloadPreconfiguredHtml() {
+      const urlInput = document.getElementById('gas-url-input').value.trim() || gasWebAppUrl;
+      if (!urlInput || !urlInput.startsWith('https://script.google.com/')) {
+        showToast("Hãy dán Google Apps Script URL hợp lệ vào ô Bước 2 trước khi tải!", "warning");
+        return;
+      }
+
+      const rawHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      const updatedHtml = rawHtml.replace(
+        /const DEFAULT_GAS_URL = "[^"]*";/,
+        `const DEFAULT_GAS_URL = "${urlInput.replace(/"/g, '\\"')}";`
+      );
+
+      const blob = new Blob([updatedHtml], { type: 'text/html;charset=utf-8' });
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = 'streakfire-google-sites-cloud.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+
+      showToast("Đã tải file 'streakfire-google-sites-cloud.html' đã gắn sẵn link Cloud!", "success");
+    }
+
+    // =========================================================================
+    // THEME & SECURITY HELPERS
+    // =========================================================================
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function initTheme() {
+      const saved = localStorage.getItem(STORAGE_KEY_THEME);
+      const isDark = saved ? saved === 'dark' : true;
+      document.documentElement.classList.toggle('dark', isDark);
+      updateThemeIcons(isDark);
+    }
+
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem(STORAGE_KEY_THEME, isDark ? 'dark' : 'light');
+      updateThemeIcons(isDark);
+    }
+
+    function updateThemeIcons(isDark) {
+      const iconName = isDark ? 'sun' : 'moon';
+      const desktopIcon = document.getElementById('theme-icon');
+      const mobileIcon = document.getElementById('theme-icon-mobile');
+      if (desktopIcon) desktopIcon.setAttribute('data-lucide', iconName);
+      if (mobileIcon) mobileIcon.setAttribute('data-lucide', iconName);
+      lucide.createIcons();
+    }
+
+    // =========================================================================
+    // BOOTSTRAP ON WINDOW LOAD
+    // =========================================================================
+    window.onload = async function () {
+      initTheme();
+      initSeedData();
+
+      const now = new Date();
+      currentYear = now.getFullYear();
+      activeMonth = now.getMonth();
+      document.getElementById('year-select').value = String(currentYear);
+      selectedDateKey = formatDateKey(currentYear, activeMonth, now.getDate());
+
+      renderMonthTabs();
+      renderCalendarGrid();
+      selectDate(selectedDateKey);
+      renderWeeklySchedule();
+      updateCountdown();
+      updateStreakAndBanner();
+      lucide.createIcons();
+
+      // Check Google Sheets Cloud Sync configuration
+      gasWebAppUrl = resolveGasUrl();
+      if (gasWebAppUrl) {
+        await syncPullFromSheets(false, true);
+      } else {
+        setCloudSyncStatus('disconnected');
+      }
+    };
+  </script>
+</body>
+</html>
